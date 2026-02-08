@@ -38,10 +38,14 @@ services:
       SECRET_KEY: dev-secret-key-change-in-production
       ARTIFACTS_DIR: /data/artifacts
       CORS_ORIGINS: http://localhost:3000
+      BOT_DIR: /bot-data
+      TRAINING_SERVER_URL: http://host.docker.internal:9000
+      METRICS_FILE_PATH: /bot-data/data/metrics/live_metrics.jsonl
     volumes:
       - ../apps/api:/app
       - ../data/artifacts:/data/artifacts
       - ../scripts:/scripts
+      - E:/DominanceBot_v2:/bot-data
     depends_on:
       postgres:
         condition: service_healthy
@@ -70,23 +74,6 @@ services:
       redis:
         condition: service_healthy
     command: rq worker --with-scheduler -u redis://redis:6379/0 default evals training
-
-  seed:
-    build:
-      context: ../apps/api
-      dockerfile: Dockerfile
-    environment:
-      DATABASE_URL_SYNC: postgresql://dominator:dominator_dev@postgres:5432/dominator
-      PYTHONPATH: /app
-    working_dir: /app
-    volumes:
-      - ../apps/api:/app
-      - ../scripts:/scripts
-    depends_on:
-      postgres:
-        condition: service_healthy
-    command: python /scripts/seed_demo_data.py
-    profiles: ["seed"]
 
   web:
     build:
