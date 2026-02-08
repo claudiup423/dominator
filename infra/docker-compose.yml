@@ -1,0 +1,106 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: dominator
+      POSTGRES_PASSWORD: dominator_dev
+      POSTGRES_DB: dominator
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dominator"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  api:
+    build:
+      context: ../apps/api
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://dominator:dominator_dev@postgres:5432/dominator
+      DATABASE_URL_SYNC: postgresql://dominator:dominator_dev@postgres:5432/dominator
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: dev-secret-key-change-in-production
+      ARTIFACTS_DIR: /data/artifacts
+      CORS_ORIGINS: http://localhost:3000
+    volumes:
+      - ../apps/api:/app
+      - ../data/artifacts:/data/artifacts
+      - ../scripts:/scripts
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: >
+      bash -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+
+  worker:
+    build:
+      context: ../apps/api
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgresql+asyncpg://dominator:dominator_dev@postgres:5432/dominator
+      DATABASE_URL_SYNC: postgresql://dominator:dominator_dev@postgres:5432/dominator
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: dev-secret-key-change-in-production
+      ARTIFACTS_DIR: /data/artifacts
+    volumes:
+      - ../apps/api:/app
+      - ../data/artifacts:/data/artifacts
+      - ../scripts:/scripts
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: rq worker --with-scheduler -u redis://redis:6379/0 default evals training
+
+  seed:
+    build:
+      context: ../apps/api
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL_SYNC: postgresql://dominator:dominator_dev@postgres:5432/dominator
+      PYTHONPATH: /app
+    working_dir: /app
+    volumes:
+      - ../apps/api:/app
+      - ../scripts:/scripts
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: python /scripts/seed_demo_data.py
+    profiles: ["seed"]
+
+  web:
+    build:
+      context: ../apps/web
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+      API_INTERNAL_URL: http://api:8000
+    volumes:
+      - ../apps/web/src:/app/src
+    depends_on:
+      - api
+
+volumes:
+  pg_data:

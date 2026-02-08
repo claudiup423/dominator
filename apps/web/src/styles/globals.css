@@ -1,0 +1,151 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --font-display: 'Outfit', system-ui, sans-serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+}
+
+@layer base {
+  * { border-color: theme('colors.dom.border-subtle'); }
+  body {
+    @apply bg-dom-base text-dom-text antialiased;
+    font-family: var(--font-body);
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    @apply text-dom-heading;
+  }
+}
+
+@layer components {
+  .glass-panel { @apply bg-dom-surface/80 backdrop-blur-md border border-dom-border rounded-xl; }
+
+  .hud-card {
+    @apply relative bg-dom-surface/60 backdrop-blur-xl border border-dom-border/50 rounded-2xl overflow-hidden;
+  }
+  .hud-card::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-br from-white/[0.04] to-transparent pointer-events-none;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg
+           bg-gradient-to-r from-dom-accent to-cyan-400 text-dom-base font-semibold text-sm
+           transition-all duration-150
+           hover:shadow-glow-accent hover:brightness-110 hover:scale-[1.02]
+           active:scale-[0.98]
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100;
+  }
+  .btn-primary-xl {
+    @apply btn-primary text-lg px-10 py-4 rounded-xl tracking-wide;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg
+           bg-dom-elevated text-dom-text font-medium text-sm border border-dom-border
+           transition-all duration-150 hover:bg-dom-border hover:text-dom-heading active:scale-[0.98];
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg
+           text-dom-muted text-sm transition-colors duration-150
+           hover:text-dom-text hover:bg-dom-elevated;
+  }
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg
+           bg-dom-red/10 text-dom-red font-medium text-sm border border-dom-red/20
+           transition-all duration-150 hover:bg-dom-red/20 active:scale-[0.98];
+  }
+
+  .mode-card {
+    @apply relative overflow-hidden rounded-2xl border-2 border-dom-border bg-dom-surface
+           cursor-pointer transition-all duration-200;
+  }
+  .mode-card:hover { @apply border-dom-accent/40 shadow-glow-accent; transform: translateY(-3px); }
+  .mode-card.selected {
+    @apply border-dom-accent/60 shadow-glow-accent;
+    background: linear-gradient(135deg, rgba(0,212,255,0.08), rgba(0,212,255,0.02));
+  }
+
+  .style-card {
+    @apply relative overflow-hidden rounded-xl border-2 border-dom-border bg-dom-surface p-5
+           cursor-pointer transition-all duration-200 text-center;
+  }
+  .style-card:hover { @apply border-dom-accent/30; transform: translateY(-2px); }
+  .style-card.selected { @apply border-dom-accent/50; background: linear-gradient(135deg, rgba(0,212,255,0.06), transparent); }
+
+  .stat-chip {
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full
+           text-xs font-medium bg-dom-elevated border border-dom-border;
+  }
+  .input-field {
+    @apply w-full px-4 py-3 rounded-xl bg-dom-elevated border border-dom-border text-dom-text text-sm
+           placeholder:text-dom-muted focus:outline-none focus:ring-2 focus:ring-dom-accent/40
+           focus:border-dom-accent/50 transition-all duration-150;
+  }
+  .section-header { @apply text-xs font-semibold uppercase tracking-wider text-dom-muted mb-3; }
+
+  .hero-mesh {
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-mesh::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%; width: 200%; height: 200%;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(0,212,255,0.1) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(99,102,241,0.07) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 80%, rgba(236,72,153,0.05) 0%, transparent 50%);
+    pointer-events: none; z-index: 0;
+    animation: meshFloat 20s ease-in-out infinite;
+  }
+  @keyframes meshFloat {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    33% { transform: translate(2%, -1%) rotate(1deg); }
+    66% { transform: translate(-1%, 2%) rotate(-1deg); }
+  }
+  .hero-mesh > * { position: relative; z-index: 1; }
+
+  .rank-badge { @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-black uppercase tracking-wider border; }
+  .rank-bronze { color: #CD7F32; border-color: rgba(205,127,50,0.3); background: rgba(205,127,50,0.1); }
+  .rank-silver { color: #C0C0C0; border-color: rgba(192,192,192,0.3); background: rgba(192,192,192,0.1); }
+  .rank-gold { color: #FFD700; border-color: rgba(255,215,0,0.3); background: rgba(255,215,0,0.1); }
+  .rank-plat { color: #00CED1; border-color: rgba(0,206,209,0.3); background: rgba(0,206,209,0.1); }
+  .rank-diamond { color: #B9F2FF; border-color: rgba(185,242,255,0.3); background: rgba(185,242,255,0.1); }
+  .rank-champ { color: #9B30FF; border-color: rgba(155,48,255,0.3); background: rgba(155,48,255,0.1); }
+  .rank-demon { color: #FF0040; border-color: rgba(255,0,64,0.3); background: rgba(255,0,64,0.15); text-shadow: 0 0 12px rgba(255,0,64,0.5); }
+
+  @keyframes livePulse {
+    0%, 100% { opacity: 0; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(2.5); }
+  }
+  @keyframes statGlow {
+    0%, 100% { text-shadow: 0 0 8px rgba(0,212,255,0.3); }
+    50% { text-shadow: 0 0 24px rgba(0,212,255,0.7); }
+  }
+  .stat-glow { animation: statGlow 3s ease-in-out infinite; }
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { @apply bg-dom-border rounded-full; }
+::-webkit-scrollbar-thumb:hover { @apply bg-dom-muted; }
+
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line { stroke: #1E2433 !important; }
+.recharts-text { fill: #6B7280 !important; font-size: 11px !important; }
+
+@keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
+@keyframes slideUp { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
+@keyframes slideInRight { 0% { opacity: 0; transform: translateX(12px); } 100% { opacity: 1; transform: translateX(0); } }
+.animate-fade-in { animation: fadeIn 200ms ease-out; }
+.animate-slide-up { animation: slideUp 300ms ease-out both; }
+.stagger > *:nth-child(1) { animation-delay: 0ms; }
+.stagger > *:nth-child(2) { animation-delay: 60ms; }
+.stagger > *:nth-child(3) { animation-delay: 120ms; }
+.stagger > *:nth-child(4) { animation-delay: 180ms; }
+.stagger > *:nth-child(5) { animation-delay: 240ms; }
+.stagger > *:nth-child(6) { animation-delay: 300ms; }

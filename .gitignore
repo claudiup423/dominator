@@ -1,0 +1,12 @@
+node_modules/
+.next/
+dist/
+__pycache__/
+*.pyc
+.env
+.env.local
+data/artifacts/*
+!data/artifacts/.gitkeep
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
