@@ -1,35 +1,49 @@
-'use client';
+"use client";
 
-import { usePathname } from 'next/navigation';
-import Link from 'next/link';
-import { cn } from '@/lib/utils';
-import { useAuth } from '@/hooks/useAuth';
+import { usePathname } from "next/navigation";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
 import {
-  Home, Crosshair, BarChart3, Play, FlaskConical, Box, FileStack, Zap, User, Crown,
-  TrendingUp, Trophy, Film, Dumbbell
-} from 'lucide-react';
+  Home,
+  Crosshair,
+  BarChart3,
+  Play,
+  FlaskConical,
+  Box,
+  FileStack,
+  Zap,
+  User,
+  Crown,
+  TrendingUp,
+  Trophy,
+  Film,
+  Dumbbell,
+  Gamepad2,
+  Rocket,
+} from "lucide-react";
 
 const playerLinks = [
-  { href: '/', label: 'Home', icon: Home },
-  { href: '/train', label: 'Train', icon: Crosshair },
-  { href: '/stats', label: 'Stats', icon: TrendingUp },
-  { href: '/achievements', label: 'Achievements', icon: Trophy },
-  { href: '/replays', label: 'Replays', icon: Film },
-  { href: '/drills', label: 'Drills', icon: Dumbbell },
+  { href: "/", label: "Home", icon: Home },
+  { href: "/play", label: "Play vs AI", icon: Gamepad2 },
+  { href: "/stats", label: "Stats", icon: TrendingUp },
+  { href: "/achievements", label: "Achievements", icon: Trophy },
+  { href: "/replays", label: "Replays", icon: Film },
 ];
 
 const adminLinks = [
-  { href: '/admin/overview', label: 'Overview', icon: BarChart3 },
-  { href: '/admin/runs', label: 'Training Runs', icon: Play },
-  { href: '/admin/evals', label: 'Evaluations', icon: FlaskConical },
-  { href: '/admin/models', label: 'Models', icon: Box },
-  { href: '/admin/artifacts', label: 'Artifacts', icon: FileStack },
+  { href: "/admin/overview", label: "AI Overview", icon: BarChart3 },
+  { href: "/admin/runs", label: "Training Runs", icon: Play },
+  { href: "/admin/evals", label: "Evaluations", icon: FlaskConical },
+  { href: "/admin/models", label: "Models", icon: Box },
+  { href: "/admin/artifacts", label: "Artifacts", icon: FileStack },
+  { href: "/admin/deploy", label: "Deploy", icon: Rocket },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
   const { user } = useAuth();
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = user?.role === "admin";
 
   return (
     <aside className="fixed left-0 top-0 bottom-0 w-[240px] bg-dom-surface/95 backdrop-blur-xl border-r border-dom-border flex flex-col z-40">
@@ -41,8 +55,12 @@ export function Sidebar() {
             <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/20 to-transparent" />
           </div>
           <div>
-            <div className="text-sm font-display font-extrabold text-dom-heading tracking-tight">DOMINATOR</div>
-            <div className="text-[10px] text-dom-accent font-semibold uppercase tracking-[0.2em]">Training Lab</div>
+            <div className="text-sm font-display font-extrabold text-dom-heading tracking-tight">
+              DOMINATOR
+            </div>
+            <div className="text-[10px] text-dom-accent font-semibold uppercase tracking-[0.2em]">
+              Training Lab
+            </div>
           </div>
         </Link>
       </div>
@@ -53,7 +71,7 @@ export function Sidebar() {
           <Crosshair className="w-3 h-3" />
           Player
         </div>
-        {playerLinks.map(link => (
+        {playerLinks.map((link) => (
           <NavLink key={link.href} {...link} active={pathname === link.href} />
         ))}
 
@@ -62,10 +80,14 @@ export function Sidebar() {
             <div className="my-5 mx-3 border-t border-dom-border" />
             <div className="section-header px-3 flex items-center gap-2">
               <Crown className="w-3 h-3" />
-              AI Ops
+              Command Center
             </div>
-            {adminLinks.map(link => (
-              <NavLink key={link.href} {...link} active={pathname.startsWith(link.href)} />
+            {adminLinks.map((link) => (
+              <NavLink
+                key={link.href}
+                {...link}
+                active={pathname.startsWith(link.href)}
+              />
             ))}
           </>
         )}
@@ -79,8 +101,12 @@ export function Sidebar() {
               <User className="w-4 h-4 text-dom-accent" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-xs font-medium text-dom-text truncate">{user.email}</div>
-              <div className="text-[10px] text-dom-accent uppercase font-semibold">{user.role}</div>
+              <div className="text-xs font-medium text-dom-text truncate">
+                {user.email}
+              </div>
+              <div className="text-[10px] text-dom-accent uppercase font-semibold">
+                {user.role}
+              </div>
             </div>
           </div>
         </div>
@@ -89,22 +115,37 @@ export function Sidebar() {
   );
 }
 
-function NavLink({ href, label, icon: Icon, active }: {
-  href: string; label: string; icon: React.ElementType; active: boolean;
+function NavLink({
+  href,
+  label,
+  icon: Icon,
+  active,
+}: {
+  href: string;
+  label: string;
+  icon: React.ElementType;
+  active: boolean;
 }) {
   return (
     <Link
       href={href}
       className={cn(
-        'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-150',
+        "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-150",
         active
-          ? 'bg-dom-accent/10 text-dom-accent font-semibold shadow-sm border border-dom-accent/10'
-          : 'text-dom-muted hover:text-dom-text hover:bg-dom-elevated'
+          ? "bg-dom-accent/10 text-dom-accent font-semibold shadow-sm border border-dom-accent/10"
+          : "text-dom-muted hover:text-dom-text hover:bg-dom-elevated",
       )}
     >
-      <Icon className={cn('w-4 h-4 flex-shrink-0', active && 'drop-shadow-[0_0_6px_rgba(0,212,255,0.5)]')} />
+      <Icon
+        className={cn(
+          "w-4 h-4 flex-shrink-0",
+          active && "drop-shadow-[0_0_6px_rgba(0,212,255,0.5)]",
+        )}
+      />
       {label}
-      {active && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-dom-accent shadow-glow-accent" />}
+      {active && (
+        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-dom-accent shadow-glow-accent" />
+      )}
     </Link>
   );
 }

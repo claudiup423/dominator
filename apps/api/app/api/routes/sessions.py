@@ -5,7 +5,7 @@ from sqlalchemy.orm import selectinload
 from typing import List
 from uuid import UUID
 from datetime import datetime, timezone
-import random
+import logging
 
 from app.db.session import get_db
 from app.db.models import TrainingSession, SessionEvent, User
@@ -14,8 +14,17 @@ from app.schemas import (
     SessionResponse, SessionEventResponse, SessionSummary,
 )
 from app.middleware.auth import get_current_user
+from app.core.config import get_settings
+from app.services.coach import CoachService
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/sessions", tags=["sessions"])
+
+
+def _get_coach() -> CoachService:
+    settings = get_settings()
+    return CoachService(base_url=settings.OLLAMA_URL, model=settings.OLLAMA_MODEL)
 
 
 @router.post("/start", response_model=SessionResponse, status_code=201)
@@ -54,7 +63,11 @@ async def add_event(session_id: UUID, body: SessionEventCreate, db: AsyncSession
 
 @router.post("/{session_id}/end", response_model=SessionResponse)
 async def end_session(session_id: UUID, body: SessionEndRequest, db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)):
-    result = await db.execute(select(TrainingSession).where(TrainingSession.id == session_id, TrainingSession.user_id == user.id))
+    result = await db.execute(
+        select(TrainingSession)
+        .options(selectinload(TrainingSession.events))
+        .where(TrainingSession.id == session_id, TrainingSession.user_id == user.id)
+    )
     session = result.scalar_one_or_none()
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
@@ -62,8 +75,37 @@ async def end_session(session_id: UUID, body: SessionEndRequest, db: AsyncSessio
     session.ended_at = datetime.now(timezone.utc)
     session.score_json = body.score_json
 
-    # Generate summary
-    session.summary_json = _generate_summary(session.mode, session.difficulty, body.score_json)
+    # Compute duration
+    duration_seconds = 0.0
+    if session.started_at:
+        duration_seconds = (session.ended_at - session.started_at).total_seconds()
+
+    # Gather event dicts for analysis
+    event_dicts = [{"t_ms": e.t_ms, "type": e.type, "payload_json": e.payload_json} for e in session.events]
+
+    # Generate coaching summary via LLM (or fallback)
+    coach = _get_coach()
+    coaching = await coach.analyze_match(
+        events=event_dicts,
+        score=body.score_json,
+        mode=session.mode,
+        difficulty=session.difficulty,
+        opponent_style=session.opponent_style,
+        duration_seconds=duration_seconds,
+    )
+
+    if coaching is None:
+        logger.info("LLM unavailable, using rule-based fallback for session %s", session_id)
+        coaching = coach.generate_fallback(
+            events=event_dicts,
+            score=body.score_json,
+            mode=session.mode,
+            difficulty=session.difficulty,
+            opponent_style=session.opponent_style,
+            duration_seconds=duration_seconds,
+        )
+
+    session.summary_json = coaching
 
     await db.commit()
     await db.refresh(session)
@@ -104,7 +146,40 @@ async def get_summary(session_id: UUID, db: AsyncSession = Depends(get_db), user
         raise HTTPException(status_code=404, detail="Session not found")
 
     events = [SessionEventResponse.model_validate(e) for e in session.events]
-    summary = session.summary_json or _generate_summary(session.mode, session.difficulty, session.score_json)
+
+    # If summary already generated (from end_session), use it
+    # Otherwise regenerate (for sessions ended without the new flow)
+    summary = session.summary_json
+    if not summary or "insights" not in summary:
+        duration_seconds = 0.0
+        if session.started_at and session.ended_at:
+            duration_seconds = (session.ended_at - session.started_at).total_seconds()
+
+        event_dicts = [{"t_ms": e.t_ms, "type": e.type, "payload_json": e.payload_json} for e in session.events]
+
+        coach = _get_coach()
+        summary = await coach.analyze_match(
+            events=event_dicts,
+            score=session.score_json or {},
+            mode=session.mode,
+            difficulty=session.difficulty,
+            opponent_style=session.opponent_style,
+            duration_seconds=duration_seconds,
+        )
+
+        if summary is None:
+            summary = coach.generate_fallback(
+                events=event_dicts,
+                score=session.score_json or {},
+                mode=session.mode,
+                difficulty=session.difficulty,
+                opponent_style=session.opponent_style,
+                duration_seconds=duration_seconds,
+            )
+
+        # Cache it
+        session.summary_json = summary
+        await db.commit()
 
     return SessionSummary(
         session=SessionResponse.model_validate(session),
@@ -112,44 +187,3 @@ async def get_summary(session_id: UUID, db: AsyncSession = Depends(get_db), user
         insights=summary.get("insights", []),
         recommended_drill=summary.get("recommended_drill", {}),
     )
-
-
-def _generate_summary(mode: str, difficulty: str, score_json: dict) -> dict:
-    insight_pool = {
-        "defense": [
-            {"title": "Shadow defense improved", "detail": "You tracked the ball carrier 23% more effectively than last session.", "type": "positive"},
-            {"title": "Last-man overcommits", "detail": "3 instances where you challenged too early as last defender.", "type": "warning"},
-            {"title": "Recovery speed", "detail": "Average recovery time to net: 2.1s — faster than your baseline.", "type": "positive"},
-        ],
-        "shooting": [
-            {"title": "Shot placement elite", "detail": "78% of shots targeted corners — well above Diamond average.", "type": "positive"},
-            {"title": "Power shot timing", "detail": "You delayed power shots by ~200ms on average. Try pre-jumping.", "type": "tip"},
-            {"title": "Open net conversion", "detail": "Converted 4/5 open net chances — strong finishing.", "type": "positive"},
-        ],
-        "possession": [
-            {"title": "Boost management solid", "detail": "Maintained 40+ boost 72% of the time in this session.", "type": "positive"},
-            {"title": "50/50 win rate up", "detail": "Won 65% of contested possessions — above your average.", "type": "positive"},
-            {"title": "Ball control under pressure", "detail": "Lost possession 2x when pressured from behind. Work on awareness.", "type": "warning"},
-        ],
-        "50/50s": [
-            {"title": "Challenge timing improved", "detail": "Your first-touch challenge was 150ms faster than last session.", "type": "positive"},
-            {"title": "Post-challenge positioning", "detail": "After winning 50/50s you recovered to a defensive position 80% of the time.", "type": "positive"},
-            {"title": "Flip direction reads", "detail": "Opponent faked left 3 times — you fell for it twice. Study flip patterns.", "type": "tip"},
-        ],
-    }
-
-    drills = {
-        "defense": {"name": "Shadow Defense Drill", "mode": "defense", "difficulty": difficulty, "duration_min": 5, "focus": "tracking and patience"},
-        "shooting": {"name": "Power Shot Angles", "mode": "shooting", "difficulty": difficulty, "duration_min": 5, "focus": "pre-jump timing"},
-        "possession": {"name": "Pressure Keepaway", "mode": "possession", "difficulty": difficulty, "duration_min": 5, "focus": "awareness under pressure"},
-        "50/50s": {"name": "Challenge Timing Drill", "mode": "50/50s", "difficulty": difficulty, "duration_min": 5, "focus": "read and react"},
-    }
-
-    mode_key = mode if mode in insight_pool else "defense"
-    insights = random.sample(insight_pool[mode_key], min(3, len(insight_pool[mode_key])))
-
-    return {
-        "insights": insights,
-        "recommended_drill": drills.get(mode_key, drills["defense"]),
-        "score": score_json,
-    }

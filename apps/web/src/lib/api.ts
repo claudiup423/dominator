@@ -8,15 +8,29 @@ class ApiError extends Error {
   }
 }
 
+// ─── Token management (for Bearer auth through proxy) ─────────────
+let _accessToken: string | null = null;
+
+export function setAccessToken(token: string | null) {
+  _accessToken = token;
+}
+
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const url = `${API_BASE}${path}`;
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(options.headers as Record<string, string>),
+  };
+
+  if (_accessToken) {
+    headers["Authorization"] = `Bearer ${_accessToken}`;
+  }
+
   const res = await fetch(url, {
     credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
     ...options,
+    headers,
   });
 
   if (!res.ok) {
@@ -121,10 +135,72 @@ export const sessions = {
   summary: (id: string) => request(`/api/sessions/${id}/summary`),
 };
 
+// ─── Match (launches actual Rocket League via agent) ──────────────
+export const match = {
+  start: (data: {
+    mode?: string;
+    difficulty: string;
+    opponent_style: string;
+    checkpoint_path?: string | null;
+  }) =>
+    request("/api/match/start", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  stop: () => request("/api/match/stop", { method: "POST" }),
+  status: () => request("/api/match/status"),
+};
+
 // ─── Artifacts ────────────────────────────────────────────────────
 export const artifacts = {
   list: () => request("/api/artifacts"),
   downloadUrl: (id: string) => `${API_BASE}/api/artifacts/${id}/download`,
+};
+
+// ─── Deploy (agent + model management) ────────────────────────────
+// Note: uploads go direct to API (not through Next.js proxy) because
+// the proxy doesn't handle multipart/form-data well for large files.
+const DIRECT_API = process.env.NEXT_PUBLIC_API_URL || "";
+
+export const deploy = {
+  agentInfo: () => request("/api/download/agent/info"),
+  modelInfo: () => request("/api/download/model/info"),
+  buildAgent: () => request("/api/download/agent/build", { method: "POST" }),
+  uploadAgent: (file: File) => {
+    const form = new FormData();
+    form.append("file", file);
+    const headers: Record<string, string> = {};
+    if (_accessToken) headers["Authorization"] = `Bearer ${_accessToken}`;
+    return fetch(`${DIRECT_API}/api/download/agent/upload`, {
+      method: "POST",
+      body: form,
+      headers,
+    }).then(async (r) => {
+      if (!r.ok) {
+        const body = await r.json().catch(() => ({ detail: "Upload failed" }));
+        throw new ApiError(body.detail || "Upload failed", r.status);
+      }
+      return r.json();
+    });
+  },
+  uploadModel: (file: File, version?: string) => {
+    const form = new FormData();
+    form.append("file", file);
+    if (version) form.append("version", version);
+    const headers: Record<string, string> = {};
+    if (_accessToken) headers["Authorization"] = `Bearer ${_accessToken}`;
+    return fetch(`${DIRECT_API}/api/download/model/upload`, {
+      method: "POST",
+      body: form,
+      headers,
+    }).then(async (r) => {
+      if (!r.ok) {
+        const body = await r.json().catch(() => ({ detail: "Upload failed" }));
+        throw new ApiError(body.detail || "Upload failed", r.status);
+      }
+      return r.json();
+    });
+  },
 };
 
 // ─── Training Control ────────────────────────────────────────────
@@ -145,6 +221,13 @@ export const trainingControl = {
     }),
   activeConfig: () => request("/api/training/active-config"),
   status: () => request("/api/training/status"),
+  stop: () => request("/api/training/stop", { method: "POST" }),
+
+  evalResults: () => request("/api/training/evals"),
+  evalLatest: () => request("/api/training/evals/latest"),
+  evalElo: () => request("/api/training/evals/elo"),
+  evalTiers: () => request("/api/training/evals/tiers"),
+  evalRegressions: () => request("/api/training/evals/regressions"),
 };
 
 export { ApiError };

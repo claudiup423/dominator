@@ -37,13 +37,17 @@ services:
       REDIS_URL: redis://redis:6379/0
       SECRET_KEY: dev-secret-key-change-in-production
       ARTIFACTS_DIR: /data/artifacts
-      CORS_ORIGINS: http://localhost:3000
+      CORS_ORIGINS: http://localhost:3000,http://100.89.134.116:3000
       BOT_DIR: /bot-data
       TRAINING_SERVER_URL: http://host.docker.internal:9000
       METRICS_FILE_PATH: /bot-data/data/metrics/live_metrics.jsonl
+      DOWNLOADS_DIR: /data/downloads
+      AGENT_SOURCE_DIR: /agent
     volumes:
       - ../apps/api:/app
       - ../data/artifacts:/data/artifacts
+      - ../data/downloads:/data/downloads
+      - ../agent:/agent
       - ../scripts:/scripts
       - E:/DominanceBot_v2:/bot-data
     depends_on:
@@ -82,7 +86,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8000
+      NEXT_PUBLIC_API_URL: http://100.89.134.116:8000
       API_INTERNAL_URL: http://api:8000
     volumes:
       - ../apps/web/src:/app/src

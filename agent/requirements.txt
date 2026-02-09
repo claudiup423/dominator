@@ -1,0 +1,25 @@
+# DominanceBot Agent — Build Instructions
+#
+# This builds the desktop agent into a single .exe file
+# that players download and double-click.
+#
+# Prerequisites:
+#   pip install pyinstaller requests
+#
+# Build:
+#   pyinstaller --onefile --name DominanceBot --icon icon.ico agent.py
+#
+# The .exe will be in dist/DominanceBot.exe
+#
+# Players also need these files alongside the .exe (or in %APPDATA%/DominanceBot/bot/):
+#   - RLBotServer.exe  (from https://github.com/RLBot/core/releases)
+#   - bot.exe           (the PPO bot, compiled separately)
+#   - bot.toml          (auto-generated on first match)
+#
+# Optional: bundle RLBotServer.exe into the agent with:
+#   pyinstaller --onefile --name DominanceBot --icon icon.ico \
+#     --add-data "bot/RLBotServer.exe;bot" \
+#     --add-data "bot/bot.exe;bot" \
+#     agent.py
+
+requests>=2.31.0

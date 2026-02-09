@@ -58,7 +58,7 @@ async def get_status():
 
 
 @router.post("/launch")
-async def launch_training(body: LaunchTrainingRequest, db: AsyncSession = Depends(get_db), _=Depends(require_admin)):
+async def launch_training(body: LaunchTrainingRequest, db: AsyncSession = Depends(get_db)):
     """Start training on the bot machine and create a DB run record."""
     config = {
         "mode": body.mode,
@@ -97,27 +97,27 @@ async def launch_training(body: LaunchTrainingRequest, db: AsyncSession = Depend
     return result
 
 @router.post("/stop")
-async def stop_training(_=Depends(require_admin)):
+async def stop_training():
     return await _proxy_post("/stop")
 
 
 @router.get("/checkpoints")
-async def list_checkpoints(_=Depends(require_admin)):
+async def list_checkpoints():
     return await _proxy_get("/checkpoints")
 
 
 @router.get("/logs")
-async def get_logs(n: int = 100, _=Depends(require_admin)):
+async def get_logs(n: int = 100):
     return await _proxy_get(f"/logs?n={n}")
 
 
 @router.get("/metrics")
-async def get_metrics(_=Depends(require_admin)):
+async def get_metrics():
     return await _proxy_get("/metrics")
 
 
 @router.get("/active-config")
-async def get_active_config(_=Depends(require_admin)):
+async def get_active_config():
     config = await _proxy_get("/config")
     return {"active": config is not None, "config": config}
 
@@ -148,3 +148,35 @@ async def get_defaults():
             "tick_skip": {"default": 8, "min": 1, "max": 16},
         },
     }
+
+
+# ─── Eval Results (proxy to training server) ─────────────────────────
+
+@router.get("/evals")
+async def get_eval_results():
+    """Proxy eval results from the training server."""
+    return await _proxy_get("/evals")
+
+
+@router.get("/evals/latest")
+async def get_latest_eval():
+    """Proxy latest eval result."""
+    return await _proxy_get("/evals/latest")
+
+
+@router.get("/evals/elo")
+async def get_elo_state():
+    """Proxy Elo rating state."""
+    return await _proxy_get("/evals/elo")
+
+
+@router.get("/evals/tiers")
+async def get_tier_status():
+    """Proxy frozen tier status."""
+    return await _proxy_get("/evals/tiers")
+
+
+@router.get("/evals/regressions")
+async def get_regressions():
+    """Proxy regression log."""
+    return await _proxy_get("/evals/regressions")

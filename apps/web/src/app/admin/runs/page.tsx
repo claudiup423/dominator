@@ -58,7 +58,10 @@ export default function AdminRunsPage() {
   });
 
   const stopMutation = useMutation({
-    mutationFn: (id: string) => trainingRuns.stop(id),
+    mutationFn: async (id: string) => {
+      await trainingControl.stop();
+      return trainingRuns.stop(id);
+    },
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["training-runs"] }),
   });
@@ -277,12 +280,14 @@ function TrainingControlPanel({
 
   // Rewards
   const [rewards, setRewards] = useState({
-    goal: 10.0,
-    touch: 3.0,
-    velocity_ball_to_goal: 5.0,
+    goal: 20.0,
+    touch: 2.0,
+    velocity_ball_to_goal: 2.0,
     velocity_player_to_ball: 1.0,
-    speed: 0.1,
-    boost_penalty: 0.0,
+    speed: 1.0,
+    boost_penalty: 2.0,
+    ball_toward_own_goal: 4,
+    bad_touch_toward_own_goal: 6,
     demo: 0.0,
     aerial: 0.0,
   });
@@ -399,6 +404,16 @@ function TrainingControlPanel({
       color: "#6B7280",
       description: "Penalty for wasting boost",
     },
+    ball_toward_own_goal: {
+      icon: Shield,
+      color: "#F97316",
+      description: "Penalty when ball moves toward own goal",
+    },
+    bad_touch_toward_own_goal: {
+      icon: AlertCircle,
+      color: "#DC2626",
+      description: "Penalty for touching ball toward own goal",
+    },
     demo: {
       icon: Swords,
       color: "#DC2626",
@@ -466,7 +481,7 @@ function TrainingControlPanel({
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 min-h-0 overflow-y-auto p-6">
           {/* ── Mode Section ── */}
           {activeSection === "mode" && (
             <div className="space-y-4">
@@ -707,6 +722,8 @@ function TrainingControlPanel({
                       velocity_player_to_ball: 1,
                       speed: 0.1,
                       boost_penalty: 0,
+                      ball_toward_own_goal: 4,
+                      bad_touch_toward_own_goal: 6,
                       demo: 0,
                       aerial: 0,
                     })
@@ -724,6 +741,8 @@ function TrainingControlPanel({
                       velocity_player_to_ball: 0.5,
                       speed: 0,
                       boost_penalty: 0.5,
+                      ball_toward_own_goal: 4,
+                      bad_touch_toward_own_goal: 6,
                       demo: 0,
                       aerial: 0,
                     })
@@ -741,6 +760,8 @@ function TrainingControlPanel({
                       velocity_player_to_ball: 3,
                       speed: 0.5,
                       boost_penalty: 0,
+                      ball_toward_own_goal: 4,
+                      bad_touch_toward_own_goal: 6,
                       demo: 5,
                       aerial: 0,
                     })
@@ -758,6 +779,8 @@ function TrainingControlPanel({
                       velocity_player_to_ball: 1,
                       speed: 0.1,
                       boost_penalty: 0,
+                      ball_toward_own_goal: 4,
+                      bad_touch_toward_own_goal: 6,
                       demo: 0,
                       aerial: 5,
                     })

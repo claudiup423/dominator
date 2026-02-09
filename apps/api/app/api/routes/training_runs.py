@@ -49,7 +49,7 @@ async def start_run(body: TrainingRunCreate, db: AsyncSession = Depends(get_db),
 
 
 @router.post("/{run_id}/stop", response_model=TrainingRunResponse)
-async def stop_run(run_id: UUID, db: AsyncSession = Depends(get_db), _=Depends(require_admin)):
+async def stop_run(run_id: UUID, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(TrainingRun).where(TrainingRun.id == run_id))
     run = result.scalar_one_or_none()
     if not run:

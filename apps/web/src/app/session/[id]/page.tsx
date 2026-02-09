@@ -1,165 +1,449 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
-import { sessions } from '@/lib/api';
-import { HUDPanel } from '@/components/ui/Card';
-import { DifficultyBadge, Badge, BigStat } from '@/components/ui/Badge';
-import { Bookmark, Wifi, WifiOff, Square, Zap } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import type { TrainingSession } from '@/types';
+import { useParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { sessions } from "@/lib/api";
+import { Card, HUDPanel, HeroCard, GlowCard } from "@/components/ui/Card";
+import { DifficultyBadge, SectionHeader, Badge } from "@/components/ui/Badge";
+import { formatDate, formatDuration, cn } from "@/lib/utils";
+import {
+  CheckCircle,
+  AlertTriangle,
+  Lightbulb,
+  ArrowRight,
+  Download,
+  Trophy,
+  XCircle,
+  Target,
+  Shield,
+  Swords,
+  TrendingUp,
+  Zap,
+  BarChart3,
+} from "lucide-react";
+import Link from "next/link";
+import type { SessionSummary, SessionInsight } from "@/types";
 
 const MODE_EMOJI: Record<string, string> = {
-  defense: '🛡️', shooting: '🎯', possession: '⚽', '50/50s': '⚔️',
+  defense: "🛡️",
+  shooting: "🎯",
+  possession: "⚽",
+  "50/50s": "⚔️",
 };
 
-export default function LiveSessionPage() {
-  const params = useParams();
-  const router = useRouter();
-  const sessionId = params.id as string;
-  const [elapsed, setElapsed] = useState(0);
-  const [events, setEvents] = useState<{ t: number; type: string; id: number }[]>([]);
-  const [connected] = useState(true);
-  const startRef = useRef(Date.now());
-  const evtId = useRef(0);
+const MODE_ICONS: Record<string, any> = {
+  defense: Shield,
+  shooting: Target,
+  possession: TrendingUp,
+  "50/50s": Swords,
+};
 
-  const { data: session } = useQuery({
-    queryKey: ['session', sessionId],
-    queryFn: () => sessions.get(sessionId) as Promise<TrainingSession>,
+export default function SummaryPage() {
+  const params = useParams();
+  const sessionId = params.id as string;
+
+  const {
+    data: summary,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["session-summary", sessionId],
+    queryFn: () =>
+      sessions.summary(sessionId) as Promise<
+        SessionSummary & { summary?: string }
+      >,
   });
 
-  useEffect(() => {
-    const interval = setInterval(() => setElapsed(Math.floor((Date.now() - startRef.current) / 1000)), 1000);
-    return () => clearInterval(interval);
-  }, []);
+  if (isLoading || !summary) {
+    return (
+      <div className="max-w-3xl mx-auto animate-pulse space-y-6">
+        <div className="h-10 w-64 bg-dom-surface rounded" />
+        <div className="h-48 bg-dom-surface rounded-2xl" />
+        <div className="h-32 bg-dom-surface rounded-xl" />
+        <div className="grid grid-cols-3 gap-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-20 bg-dom-surface rounded-xl" />
+          ))}
+        </div>
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-24 bg-dom-surface rounded-xl" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const types = ['save', 'shot', 'boost_pickup', 'demo', 'aerial', 'clear'];
-      const type = types[Math.floor(Math.random() * types.length)];
-      evtId.current++;
-      setEvents(prev => [...prev.slice(-30), { t: elapsed, type, id: evtId.current }]);
-    }, 2500 + Math.random() * 4000);
-    return () => clearInterval(interval);
-  }, [elapsed]);
+  if (error) {
+    return (
+      <div className="max-w-3xl mx-auto mt-16 text-center">
+        <div className="text-4xl mb-4">😵</div>
+        <h2 className="text-xl font-display font-bold text-dom-heading">
+          Session Not Found
+        </h2>
+        <p className="text-sm text-dom-muted mt-2">
+          This session may not exist or you don&apos;t have access to it.
+        </p>
+        <Link href="/" className="btn-primary mt-4 inline-flex">
+          Go Home
+        </Link>
+      </div>
+    );
+  }
 
-  const handleBookmark = useCallback(async () => {
-    evtId.current++;
-    setEvents(prev => [...prev, { t: elapsed, type: 'bookmark', id: evtId.current }]);
-    await sessions.addEvent(sessionId, { t_ms: elapsed * 1000, type: 'bookmark', payload_json: {} });
-  }, [sessionId, elapsed]);
+  const { session, insights, recommended_drill, events } = summary;
+  const coachSummary = (summary as any).summary as string | undefined;
+  const playerScore = session.score_json?.player ?? 0;
+  const opponentScore = session.score_json?.opponent ?? 0;
+  const isWin = playerScore > opponentScore;
+  const isDraw = playerScore === opponentScore;
 
-  const handleEnd = useCallback(async () => {
-    const playerScore = events.filter(e => e.type === 'shot').length;
-    const opponentScore = Math.floor(elapsed / 90);
-    await sessions.end(sessionId, { score_json: { player: playerScore, opponent: opponentScore } });
-    router.push(`/session/${sessionId}/summary`);
-  }, [sessionId, events, router, elapsed]);
-
-  const fmt = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
-  const shots = events.filter(e => e.type === 'shot').length;
-  const saves = events.filter(e => e.type === 'save').length;
-  const opponentGoals = Math.floor(elapsed / 90);
+  // Compute quick stats from events
+  const shots = events.filter((e) => e.type === "shot").length;
+  const saves = events.filter((e) => e.type === "save").length;
+  const boosts = events.filter((e) => e.type === "boost_pickup").length;
+  const aerials = events.filter((e) => e.type === "aerial").length;
+  const demos = events.filter((e) => e.type === "demo").length;
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      {/* Top bar */}
+    <div className="max-w-3xl mx-auto space-y-8">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <span className="text-2xl">{MODE_EMOJI[session?.mode || 'defense']}</span>
-          <h1 className="text-xl font-display font-bold capitalize">{session?.mode || 'Training'}</h1>
-          {session && <DifficultyBadge difficulty={session.difficulty} />}
+        <div>
+          <div className="flex items-center gap-3 mb-1">
+            <span className="text-3xl">{MODE_EMOJI[session.mode] || "⚡"}</span>
+            <h1 className="text-2xl font-display font-black">Match Analysis</h1>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-dom-muted">
+            <span className="capitalize">{session.mode}</span>
+            <span>·</span>
+            <DifficultyBadge difficulty={session.difficulty} />
+            <span>·</span>
+            <span>vs {session.opponent_style}</span>
+            <span>·</span>
+            <span>{formatDate(session.started_at)}</span>
+            <span>·</span>
+            <span>{formatDuration(session.started_at, session.ended_at)}</span>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          {connected ? (
-            <Badge variant="success"><Wifi className="w-3 h-3 mr-1" /> Live</Badge>
-          ) : (
-            <Badge variant="danger"><WifiOff className="w-3 h-3 mr-1" /> Offline</Badge>
+        <button
+          onClick={() => {
+            const blob = new Blob([JSON.stringify(summary, null, 2)], {
+              type: "application/json",
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `session_${sessionId}.json`;
+            a.click();
+          }}
+          className="btn-secondary"
+        >
+          <Download className="w-4 h-4" /> Export
+        </button>
+      </div>
+
+      {/* Score Card */}
+      <HeroCard>
+        <div className="text-center space-y-4">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            {isWin ? (
+              <>
+                <Trophy className="w-6 h-6 text-dom-green" />
+                <span className="text-lg font-bold text-dom-green">
+                  Victory!
+                </span>
+              </>
+            ) : isDraw ? (
+              <span className="text-lg font-bold text-dom-yellow">Draw</span>
+            ) : (
+              <>
+                <XCircle className="w-6 h-6 text-dom-red" />
+                <span className="text-lg font-bold text-dom-red">Defeat</span>
+              </>
+            )}
+          </div>
+          <div className="text-7xl font-display font-black tracking-tighter">
+            <span
+              className={
+                isWin ? "text-dom-accent stat-glow" : "text-dom-heading"
+              }
+            >
+              {playerScore}
+            </span>
+            <span className="text-dom-muted mx-6 text-4xl">–</span>
+            <span
+              className={
+                !isWin && !isDraw ? "text-dom-red" : "text-dom-heading"
+              }
+            >
+              {opponentScore}
+            </span>
+          </div>
+          <div className="text-sm text-dom-muted">
+            vs{" "}
+            <span className="capitalize font-medium text-dom-text">
+              {session.opponent_style}
+            </span>{" "}
+            opponent at{" "}
+            <span className="capitalize font-medium text-dom-text">
+              {session.difficulty}
+            </span>{" "}
+            difficulty
+          </div>
+        </div>
+      </HeroCard>
+
+      {/* Match Stats */}
+      <div className="grid grid-cols-5 gap-3">
+        <StatCard label="Shots" value={shots} icon="🎯" />
+        <StatCard label="Saves" value={saves} icon="🧤" />
+        <StatCard label="Boosts" value={boosts} icon="⚡" />
+        <StatCard label="Aerials" value={aerials} icon="🚀" />
+        <StatCard label="Demos" value={demos} icon="💥" />
+      </div>
+
+      {/* AI Coach Summary */}
+      {coachSummary && (
+        <div className="space-y-3">
+          <SectionHeader>🤖 Coach Analysis</SectionHeader>
+          <Card className="border-dom-accent/20">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-xl bg-dom-accent/10 flex items-center justify-center border border-dom-accent/20 flex-shrink-0">
+                <BarChart3 className="w-5 h-5 text-dom-accent" />
+              </div>
+              <p className="text-sm text-dom-text leading-relaxed">
+                {coachSummary}
+              </p>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Key Insights */}
+      <div className="space-y-4">
+        <SectionHeader>Key Insights</SectionHeader>
+        <div className="space-y-3 stagger">
+          {insights.map((insight, i) => (
+            <InsightCard key={i} insight={insight} index={i} />
+          ))}
+          {insights.length === 0 && (
+            <Card className="text-center py-8 text-dom-muted text-sm">
+              No insights available for this session.
+            </Card>
           )}
         </div>
       </div>
 
-      {/* Main HUD */}
-      <HUDPanel accent="#00D4FF" className="!p-0">
-        <div className="p-8">
-          {/* Score */}
-          <div className="text-center mb-8">
-            <div className="text-6xl font-display font-black tracking-tighter">
-              <span className="text-dom-accent stat-glow">{shots}</span>
-              <span className="text-dom-muted mx-4 text-4xl">—</span>
-              <span className="text-dom-red">{opponentGoals}</span>
-            </div>
-            <div className="text-xs text-dom-muted uppercase tracking-wider mt-2">You vs Opponent</div>
+      {/* Session Timeline */}
+      {events.length > 0 && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <SectionHeader className="!mb-0">Match Timeline</SectionHeader>
+            <span className="text-xs text-dom-muted">
+              {events.length} events
+            </span>
           </div>
-
-          {/* Stats row */}
-          <div className="grid grid-cols-3 gap-6">
-            <div className="text-center">
-              <div className="text-3xl font-display font-black text-dom-heading font-mono">{fmt(elapsed)}</div>
-              <div className="text-xs text-dom-muted uppercase tracking-wider mt-1">Elapsed</div>
+          <Card className="max-h-64 overflow-y-auto !p-4">
+            <div className="space-y-1">
+              {events.slice(0, 50).map((evt, i) => {
+                const eventEmojis: Record<string, string> = {
+                  goal_scored: "⚽",
+                  goal_conceded: "😤",
+                  save: "🧤",
+                  shot: "🎯",
+                  boost_pickup: "⚡",
+                  demo: "💥",
+                  bookmark: "🔖",
+                  aerial: "🚀",
+                  clear: "🦶",
+                };
+                const isGoal =
+                  evt.type === "goal_scored" || evt.type === "goal_conceded";
+                return (
+                  <div
+                    key={i}
+                    className={cn(
+                      "flex items-center gap-3 text-xs py-1.5 px-2 rounded-lg hover:bg-dom-elevated/50",
+                      isGoal && "bg-dom-elevated/30 font-medium",
+                    )}
+                  >
+                    <span className="text-dom-muted font-mono w-14">
+                      {Math.floor(evt.t_ms / 60000)}:
+                      {String(Math.floor((evt.t_ms % 60000) / 1000)).padStart(
+                        2,
+                        "0",
+                      )}
+                    </span>
+                    <span>{eventEmojis[evt.type] || "•"}</span>
+                    <span
+                      className={cn(
+                        "capitalize text-dom-text",
+                        isGoal &&
+                          (evt.type === "goal_scored"
+                            ? "text-dom-green"
+                            : "text-dom-red"),
+                      )}
+                    >
+                      {evt.type.replace(/_/g, " ")}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
-            <div className="text-center">
-              <div className="text-3xl font-display font-black text-dom-green">{saves}</div>
-              <div className="text-xs text-dom-muted uppercase tracking-wider mt-1">Saves</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-display font-black text-dom-yellow">{events.filter(e => e.type === 'boost_pickup').length}</div>
-              <div className="text-xs text-dom-muted uppercase tracking-wider mt-1">Boosts</div>
-            </div>
-          </div>
+          </Card>
         </div>
+      )}
 
-        {/* Progress bar */}
-        <div className="h-1 bg-dom-border">
-          <div
-            className="h-full bg-gradient-to-r from-dom-accent to-cyan-400 transition-all duration-1000"
-            style={{ width: `${Math.min(100, (elapsed / 300) * 100)}%` }}
-          />
+      {/* Recommended Drill */}
+      {recommended_drill && recommended_drill.name && (
+        <div className="space-y-4">
+          <SectionHeader>What To Practice Next</SectionHeader>
+          <Link href="/train">
+            <GlowCard
+              color="#00D4FF"
+              className="cursor-pointer hover:-translate-y-0.5 transition-transform"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-xl bg-dom-accent/10 flex items-center justify-center border border-dom-accent/20">
+                    <Zap className="w-7 h-7 text-dom-accent" />
+                  </div>
+                  <div>
+                    <div className="font-display font-bold text-dom-heading text-lg">
+                      {recommended_drill.name}
+                    </div>
+                    <div className="text-sm text-dom-muted mt-0.5">
+                      {recommended_drill.duration_min} min ·{" "}
+                      <span className="capitalize">
+                        {recommended_drill.mode}
+                      </span>
+                    </div>
+                    {recommended_drill.focus && (
+                      <div className="text-xs text-dom-accent mt-1.5 leading-relaxed max-w-md">
+                        <span className="font-semibold">Why: </span>
+                        {recommended_drill.focus}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <button className="btn-primary">
+                  Start <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </GlowCard>
+          </Link>
         </div>
-      </HUDPanel>
+      )}
 
       {/* Actions */}
-      <div className="flex items-center justify-center gap-4">
-        <button onClick={handleBookmark} className="btn-secondary">
-          <Bookmark className="w-4 h-4" />
-          Bookmark
-        </button>
-        <button onClick={handleEnd} className="btn-danger px-8 py-3 text-base">
-          <Square className="w-4 h-4" />
-          End Session
-        </button>
-      </div>
-
-      {/* Event Feed */}
-      <div className="space-y-2">
-        <div className="text-xs text-dom-muted uppercase tracking-wider flex items-center gap-2">
-          <Zap className="w-3 h-3" />
-          Live Feed
-        </div>
-        <div className="space-y-1 max-h-52 overflow-y-auto rounded-xl bg-dom-surface border border-dom-border p-3">
-          {events.slice(-12).reverse().map((evt) => (
-            <div key={evt.id} className="flex items-center gap-3 text-xs py-1.5 px-3 rounded-lg bg-dom-elevated/40 animate-fade-in">
-              <span className="text-dom-muted font-mono w-12">{fmt(evt.t)}</span>
-              <EventIcon type={evt.type} />
-              <span className="text-dom-text capitalize font-medium">{evt.type.replace('_', ' ')}</span>
-            </div>
-          ))}
-          {events.length === 0 && (
-            <div className="text-sm text-dom-muted py-6 text-center">Waiting for events...</div>
-          )}
-        </div>
+      <div className="flex items-center justify-center gap-4 pb-8">
+        <Link href="/train" className="btn-secondary">
+          Play Again
+        </Link>
+        <Link
+          href="/"
+          className="btn-ghost text-sm text-dom-muted hover:text-dom-text"
+        >
+          Back to Dashboard
+        </Link>
       </div>
     </div>
   );
 }
 
-function EventIcon({ type }: { type: string }) {
-  const config: Record<string, { emoji: string }> = {
-    shot: { emoji: '🎯' }, save: { emoji: '🧤' }, goal_scored: { emoji: '⚽' },
-    goal_conceded: { emoji: '😤' }, bookmark: { emoji: '🔖' }, demo: { emoji: '💥' },
-    boost_pickup: { emoji: '⚡' }, aerial: { emoji: '🚀' }, clear: { emoji: '🦶' },
+function StatCard({
+  label,
+  value,
+  icon,
+}: {
+  label: string;
+  value: number;
+  icon: string;
+}) {
+  return (
+    <Card className="text-center py-3 px-2">
+      <div className="text-lg mb-1">{icon}</div>
+      <div className="text-xl font-display font-black text-dom-heading">
+        {value}
+      </div>
+      <div className="text-[10px] text-dom-muted uppercase tracking-wider mt-0.5">
+        {label}
+      </div>
+    </Card>
+  );
+}
+
+function InsightCard({
+  insight,
+  index,
+}: {
+  insight: SessionInsight;
+  index: number;
+}) {
+  const config = {
+    positive: {
+      icon: CheckCircle,
+      color: "text-dom-green",
+      bg: "bg-dom-green/10",
+      border: "border-dom-green/20",
+      label: "Strength",
+      emoji: "✅",
+    },
+    warning: {
+      icon: AlertTriangle,
+      color: "text-dom-yellow",
+      bg: "bg-dom-yellow/10",
+      border: "border-dom-yellow/20",
+      label: "Needs Work",
+      emoji: "⚠️",
+    },
+    tip: {
+      icon: Lightbulb,
+      color: "text-dom-accent",
+      bg: "bg-dom-accent/10",
+      border: "border-dom-accent/20",
+      label: "Tip",
+      emoji: "💡",
+    },
   };
-  const c = config[type] || { emoji: '•' };
-  return <span className="text-sm">{c.emoji}</span>;
+  const c = config[insight.type] || config.tip;
+  const Icon = c.icon;
+
+  return (
+    <Card className={`border ${c.border} animate-slide-up`}>
+      <div className="flex items-start gap-4">
+        <div
+          className={cn(
+            "w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 border",
+            c.bg,
+            c.border,
+          )}
+        >
+          <Icon className={cn("w-5 h-5", c.color)} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="font-display font-bold text-dom-heading">
+              {insight.title}
+            </span>
+            <Badge
+              variant={
+                insight.type === "positive"
+                  ? "success"
+                  : insight.type === "warning"
+                    ? "warning"
+                    : "accent"
+              }
+            >
+              {c.label}
+            </Badge>
+          </div>
+          <p className="text-sm text-dom-muted leading-relaxed">
+            {insight.detail}
+          </p>
+        </div>
+      </div>
+    </Card>
+  );
 }

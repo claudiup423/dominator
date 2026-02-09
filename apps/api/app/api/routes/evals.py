@@ -63,13 +63,15 @@ async def run_eval(body: EvalRunRequest, db: AsyncSession = Depends(get_db), _=D
         from rq import Queue
         q = Queue("evals", connection=redis_conn)
         q.enqueue("app.jobs.eval_job.run_eval_job", str(eval_result.id))
-    except Exception:
-        pass  # In dev without worker, eval will stay in "running"
+    except Exception as e:
+        eval_result.status = "error"
+        eval_result.error = f"enqueue_failed: {e!r}"  # if you have a column
+        await db.commit()
 
     return EvalResultResponse.model_validate(eval_result)
 
 
-@router.get("/{eval_id}", response_model=EvalResultResponse)
+@router.get("/{eval_id:uuid}", response_model=EvalResultResponse)
 async def get_eval(eval_id: UUID, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(EvalResult).where(EvalResult.id == eval_id))
     ev = result.scalar_one_or_none()
@@ -85,13 +87,20 @@ async def compare_evals(
     db: AsyncSession = Depends(get_db),
 ):
     base_r = await db.execute(
-        select(EvalResult).where(EvalResult.checkpoint_id == base_checkpoint_id).order_by(EvalResult.created_at.desc())
+        select(EvalResult)
+        .where(EvalResult.checkpoint_id == base_checkpoint_id)
+        .order_by(EvalResult.created_at.desc())
+        .limit(1)
     )
-    base = base_r.scalar_one_or_none()
+    base = base_r.scalars().first()
+
     cand_r = await db.execute(
-        select(EvalResult).where(EvalResult.checkpoint_id == candidate_checkpoint_id).order_by(EvalResult.created_at.desc())
+        select(EvalResult)
+        .where(EvalResult.checkpoint_id == candidate_checkpoint_id)
+        .order_by(EvalResult.created_at.desc())
+        .limit(1)
     )
-    candidate = cand_r.scalar_one_or_none()
+    candidate = cand_r.scalars().first()
 
     if not base or not candidate:
         raise HTTPException(status_code=404, detail="Eval results not found for comparison")
