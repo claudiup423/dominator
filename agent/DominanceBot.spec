@@ -1,38 +1,54 @@
-# -*- mode: python ; coding: utf-8 -*-
+# DominanceBot.spec -- PyInstaller build spec
+# Run: pyinstaller DominanceBot.spec --noconfirm
 
+from pathlib import Path
+from PyInstaller.utils.hooks import collect_all
+
+block_cipher = None
+
+# Collect rlbot package data
+rlbot_datas, rlbot_binaries, rlbot_hiddenimports = collect_all('rlbot')
+flat_datas, flat_binaries, flat_hiddenimports = collect_all('rlbot_flatbuffers')
 
 a = Analysis(
     ['agent.py'],
     pathex=[],
-    binaries=[],
-    datas=[],
-    hiddenimports=[],
+    binaries=rlbot_binaries + flat_binaries,
+    datas=rlbot_datas + flat_datas,
+    hiddenimports=[
+        'rlbot',
+        'rlbot.managers',
+        'rlbot.managers.match',
+        'rlbot.interface',
+        'rlbot.gateway',
+        'rlbot_flatbuffers',
+        'flatbuffers',
+    ] + rlbot_hiddenimports + flat_hiddenimports,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    excludes=['tkinter', 'matplotlib', 'numpy', 'PIL', 'scipy'],
+    win_no_prefer_redirects=False,
+    win_private_assemblies=False,
+    cipher=block_cipher,
     noarchive=False,
-    optimize=0,
 )
-pyz = PYZ(a.pure)
+
+pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 
 exe = EXE(
     pyz,
     a.scripts,
     a.binaries,
+    a.zipfiles,
     a.datas,
     [],
     name='DominanceBot',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
-    upx=True,
-    upx_exclude=[],
-    runtime_tmpdir=None,
+    upx=False,
     console=True,
-    disable_windowed_traceback=False,
-    argv_emulation=False,
-    target_arch=None,
-    codesign_identity=None,
-    entitlements_file=None,
+    icon='assets/icon.ico',
+    version='version_info.py',
 )

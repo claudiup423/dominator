@@ -25,7 +25,6 @@ imports:
  &#8226;   <a href="#codecs">codecs</a>
  &#8226;   <a href="#collections">collections</a>
  &#8226;   <a href="#copyreg">copyreg</a>
- &#8226;   <a href="#datetime">datetime</a>
  &#8226;   <a href="#encodings">encodings</a>
  &#8226;   <a href="#encodings.aliases">encodings.aliases</a>
  &#8226;   <a href="#encodings.ascii">encodings.ascii</a>
@@ -149,6 +148,7 @@ imports:
  &#8226;   <a href="#encodings.uu_codec">encodings.uu_codec</a>
  &#8226;   <a href="#encodings.zlib_codec">encodings.zlib_codec</a>
  &#8226;   <a href="#enum">enum</a>
+ &#8226;   <a href="#flatbuffers">flatbuffers</a>
  &#8226;   <a href="#functools">functools</a>
  &#8226;   <a href="#genericpath">genericpath</a>
  &#8226;   <a href="#heapq">heapq</a>
@@ -174,18 +174,35 @@ imports:
  &#8226;   <a href="#re._parser">re._parser</a>
  &#8226;   <a href="#reprlib">reprlib</a>
  &#8226;   <a href="#requests">requests</a>
+ &#8226;   <a href="#rlbot">rlbot</a>
+ &#8226;   <a href="#rlbot.config">rlbot.config</a>
+ &#8226;   <a href="#rlbot.flat">rlbot.flat</a>
+ &#8226;   <a href="#rlbot.interface">rlbot.interface</a>
+ &#8226;   <a href="#rlbot.managers">rlbot.managers</a>
+ &#8226;   <a href="#rlbot.managers.bot">rlbot.managers.bot</a>
+ &#8226;   <a href="#rlbot.managers.hivemind">rlbot.managers.hivemind</a>
  &#8226;   <a href="#rlbot.managers.match">rlbot.managers.match</a>
+ &#8226;   <a href="#rlbot.managers.rendering">rlbot.managers.rendering</a>
+ &#8226;   <a href="#rlbot.managers.script">rlbot.managers.script</a>
+ &#8226;   <a href="#rlbot.utils">rlbot.utils</a>
+ &#8226;   <a href="#rlbot.utils.gateway">rlbot.utils.gateway</a>
+ &#8226;   <a href="#rlbot.utils.logging">rlbot.utils.logging</a>
+ &#8226;   <a href="#rlbot.utils.maps">rlbot.utils.maps</a>
+ &#8226;   <a href="#rlbot.utils.os_detector">rlbot.utils.os_detector</a>
+ &#8226;   <a href="#rlbot.version">rlbot.version</a>
+ &#8226;   <a href="#rlbot_flatbuffers">rlbot_flatbuffers</a>
+ &#8226;   <a href="#rlbot_flatbuffers.rlbot_flatbuffers">rlbot_flatbuffers.rlbot_flatbuffers</a>
  &#8226;   <a href="#signal">signal</a>
  &#8226;   <a href="#sre_compile">sre_compile</a>
  &#8226;   <a href="#sre_constants">sre_constants</a>
  &#8226;   <a href="#sre_parse">sre_parse</a>
  &#8226;   <a href="#stat">stat</a>
+ &#8226;   <a href="#subprocess">subprocess</a>
  &#8226;   <a href="#sys">sys</a>
  &#8226;   <a href="#threading">threading</a>
  &#8226;   <a href="#time">time</a>
  &#8226;   <a href="#traceback">traceback</a>
  &#8226;   <a href="#types">types</a>
- &#8226;   <a href="#typing">typing</a>
  &#8226;   <a href="#warnings">warnings</a>
  &#8226;   <a href="#weakref">weakref</a>
 
@@ -4078,6 +4095,7 @@ imported by:
  &#8226;   <a href="#difflib">difflib</a>
  &#8226;   <a href="#dis">dis</a>
  &#8226;   <a href="#email.feedparser">email.feedparser</a>
+ &#8226;   <a href="#flatbuffers.number_types">flatbuffers.number_types</a>
  &#8226;   <a href="#functools">functools</a>
  &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
  &#8226;   <a href="#importlib.metadata._collections">importlib.metadata._collections</a>
@@ -4758,7 +4776,6 @@ imports:
   <div class="import">
 imported by:
     <a href="#_strptime">_strptime</a>
- &#8226;   <a href="#agent.py">agent.py</a>
  &#8226;   <a href="#calendar">calendar</a>
  &#8226;   <a href="#email.utils">email.utils</a>
  &#8226;   <a href="#http.cookiejar">http.cookiejar</a>
@@ -7997,6 +8014,185 @@ imported by:
 </div>
 
 <div class="node">
+  <a name="flatbuffers"></a>
+  <a target="code" href="///C:/Users/BossDeBoss/AppData/Local/Programs/Python/Python313/Lib/site-packages/flatbuffers/__init__.py" type="text/plain"><tt>flatbuffers</tt></a>
+<span class="moduletype">Package</span>  <div class="import">
+imports:
+    <a href="#flatbuffers">flatbuffers</a>
+ &#8226;   <a href="#flatbuffers.builder">flatbuffers.builder</a>
+ &#8226;   <a href="#flatbuffers.compat">flatbuffers.compat</a>
+ &#8226;   <a href="#flatbuffers.encode">flatbuffers.encode</a>
+ &#8226;   <a href="#flatbuffers.number_types">flatbuffers.number_types</a>
+ &#8226;   <a href="#flatbuffers.packer">flatbuffers.packer</a>
+ &#8226;   <a href="#flatbuffers.table">flatbuffers.table</a>
+ &#8226;   <a href="#flatbuffers.util">flatbuffers.util</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#agent.py">agent.py</a>
+ &#8226;   <a href="#flatbuffers">flatbuffers</a>
+ &#8226;   <a href="#flatbuffers.builder">flatbuffers.builder</a>
+ &#8226;   <a href="#flatbuffers.compat">flatbuffers.compat</a>
+ &#8226;   <a href="#flatbuffers.encode">flatbuffers.encode</a>
+ &#8226;   <a href="#flatbuffers.number_types">flatbuffers.number_types</a>
+ &#8226;   <a href="#flatbuffers.packer">flatbuffers.packer</a>
+ &#8226;   <a href="#flatbuffers.table">flatbuffers.table</a>
+ &#8226;   <a href="#flatbuffers.util">flatbuffers.util</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="flatbuffers.builder"></a>
+  <a target="code" href="///C:/Users/BossDeBoss/AppData/Local/Programs/Python/Python313/Lib/site-packages/flatbuffers/builder.py" type="text/plain"><tt>flatbuffers.builder</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#flatbuffers">flatbuffers</a>
+ &#8226;   <a href="#flatbuffers.compat">flatbuffers.compat</a>
+ &#8226;   <a href="#flatbuffers.encode">flatbuffers.encode</a>
+ &#8226;   <a href="#flatbuffers.number_types">flatbuffers.number_types</a>
+ &#8226;   <a href="#flatbuffers.packer">flatbuffers.packer</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#flatbuffers">flatbuffers</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="flatbuffers.compat"></a>
+  <a target="code" href="///C:/Users/BossDeBoss/AppData/Local/Programs/Python/Python313/Lib/site-packages/flatbuffers/compat.py" type="text/plain"><tt>flatbuffers.compat</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#flatbuffers">flatbuffers</a>
+ &#8226;   <a href="#imp">imp</a>
+ &#8226;   <a href="#numpy">numpy</a>
+ &#8226;   <a href="#sys">sys</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#flatbuffers">flatbuffers</a>
+ &#8226;   <a href="#flatbuffers.builder">flatbuffers.builder</a>
+ &#8226;   <a href="#flatbuffers.encode">flatbuffers.encode</a>
+ &#8226;   <a href="#flatbuffers.number_types">flatbuffers.number_types</a>
+ &#8226;   <a href="#flatbuffers.packer">flatbuffers.packer</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="flatbuffers.encode"></a>
+  <a target="code" href="///C:/Users/BossDeBoss/AppData/Local/Programs/Python/Python313/Lib/site-packages/flatbuffers/encode.py" type="text/plain"><tt>flatbuffers.encode</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#flatbuffers">flatbuffers</a>
+ &#8226;   <a href="#flatbuffers.compat">flatbuffers.compat</a>
+ &#8226;   <a href="#flatbuffers.number_types">flatbuffers.number_types</a>
+ &#8226;   <a href="#flatbuffers.packer">flatbuffers.packer</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#flatbuffers">flatbuffers</a>
+ &#8226;   <a href="#flatbuffers.builder">flatbuffers.builder</a>
+ &#8226;   <a href="#flatbuffers.table">flatbuffers.table</a>
+ &#8226;   <a href="#flatbuffers.util">flatbuffers.util</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="flatbuffers.number_types"></a>
+  <a target="code" href="///C:/Users/BossDeBoss/AppData/Local/Programs/Python/Python313/Lib/site-packages/flatbuffers/number_types.py" type="text/plain"><tt>flatbuffers.number_types</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#collections">collections</a>
+ &#8226;   <a href="#flatbuffers">flatbuffers</a>
+ &#8226;   <a href="#flatbuffers.compat">flatbuffers.compat</a>
+ &#8226;   <a href="#flatbuffers.packer">flatbuffers.packer</a>
+ &#8226;   <a href="#struct">struct</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#flatbuffers">flatbuffers</a>
+ &#8226;   <a href="#flatbuffers.builder">flatbuffers.builder</a>
+ &#8226;   <a href="#flatbuffers.encode">flatbuffers.encode</a>
+ &#8226;   <a href="#flatbuffers.table">flatbuffers.table</a>
+ &#8226;   <a href="#flatbuffers.util">flatbuffers.util</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="flatbuffers.packer"></a>
+  <a target="code" href="///C:/Users/BossDeBoss/AppData/Local/Programs/Python/Python313/Lib/site-packages/flatbuffers/packer.py" type="text/plain"><tt>flatbuffers.packer</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#flatbuffers">flatbuffers</a>
+ &#8226;   <a href="#flatbuffers.compat">flatbuffers.compat</a>
+ &#8226;   <a href="#struct">struct</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#flatbuffers">flatbuffers</a>
+ &#8226;   <a href="#flatbuffers.builder">flatbuffers.builder</a>
+ &#8226;   <a href="#flatbuffers.encode">flatbuffers.encode</a>
+ &#8226;   <a href="#flatbuffers.number_types">flatbuffers.number_types</a>
+ &#8226;   <a href="#flatbuffers.util">flatbuffers.util</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="flatbuffers.table"></a>
+  <a target="code" href="///C:/Users/BossDeBoss/AppData/Local/Programs/Python/Python313/Lib/site-packages/flatbuffers/table.py" type="text/plain"><tt>flatbuffers.table</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#flatbuffers">flatbuffers</a>
+ &#8226;   <a href="#flatbuffers.encode">flatbuffers.encode</a>
+ &#8226;   <a href="#flatbuffers.number_types">flatbuffers.number_types</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#flatbuffers">flatbuffers</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="flatbuffers.util"></a>
+  <a target="code" href="///C:/Users/BossDeBoss/AppData/Local/Programs/Python/Python313/Lib/site-packages/flatbuffers/util.py" type="text/plain"><tt>flatbuffers.util</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#flatbuffers">flatbuffers</a>
+ &#8226;   <a href="#flatbuffers.encode">flatbuffers.encode</a>
+ &#8226;   <a href="#flatbuffers.number_types">flatbuffers.number_types</a>
+ &#8226;   <a href="#flatbuffers.packer">flatbuffers.packer</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#flatbuffers">flatbuffers</a>
+
+  </div>
+
+</div>
+
+<div class="node">
   <a name="fnmatch"></a>
   <a target="code" href="///C:/Users/BossDeBoss/AppData/Local/Programs/Python/Python313/Lib/fnmatch.py" type="text/plain"><tt>fnmatch</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
@@ -8746,6 +8942,17 @@ imports:
   <div class="import">
 imported by:
     <a href="#idna.core">idna.core</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="imp"></a>
+  <a target="code" href="" type="text/plain"><tt>imp</tt></a>
+<span class="moduletype">MissingModule</span>  <div class="import">
+imported by:
+    <a href="#flatbuffers.compat">flatbuffers.compat</a>
 
   </div>
 
@@ -11135,6 +11342,17 @@ imported by:
 </div>
 
 <div class="node">
+  <a name="numpy"></a>
+  <a target="code" href="" type="text/plain"><tt>numpy</tt></a>
+<span class="moduletype">ExcludedModule</span>  <div class="import">
+imported by:
+    <a href="#flatbuffers.compat">flatbuffers.compat</a>
+
+  </div>
+
+</div>
+
+<div class="node">
   <a name="opcode"></a>
   <a target="code" href="///C:/Users/BossDeBoss/AppData/Local/Programs/Python/Python313/Lib/opcode.py" type="text/plain"><tt>opcode</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
@@ -11839,6 +12057,7 @@ imported by:
  &#8226;   <a href="#importlib_metadata.compat.py311">importlib_metadata.compat.py311</a>
  &#8226;   <a href="#pathlib._abc">pathlib._abc</a>
  &#8226;   <a href="#pathlib._local">pathlib._local</a>
+ &#8226;   <a href="#rlbot.config">rlbot.config</a>
  &#8226;   <a href="#rlbot.interface">rlbot.interface</a>
  &#8226;   <a href="#rlbot.managers.match">rlbot.managers.match</a>
  &#8226;   <a href="#rlbot.utils.gateway">rlbot.utils.gateway</a>
@@ -13237,7 +13456,9 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#rlbot.flat">rlbot.flat</a>
+    <a href="#agent.py">agent.py</a>
+ &#8226;   <a href="#rlbot.config">rlbot.config</a>
+ &#8226;   <a href="#rlbot.flat">rlbot.flat</a>
  &#8226;   <a href="#rlbot.interface">rlbot.interface</a>
  &#8226;   <a href="#rlbot.managers">rlbot.managers</a>
  &#8226;   <a href="#rlbot.managers.bot">rlbot.managers.bot</a>
@@ -13247,6 +13468,27 @@ imported by:
  &#8226;   <a href="#rlbot.managers.script">rlbot.managers.script</a>
  &#8226;   <a href="#rlbot.utils">rlbot.utils</a>
  &#8226;   <a href="#rlbot.version">rlbot.version</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="rlbot.config"></a>
+  <a target="code" href="///C:/Users/BossDeBoss/AppData/Local/Programs/Python/Python313/Lib/site-packages/rlbot/config.py" type="text/plain"><tt>rlbot.config</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#pathlib">pathlib</a>
+ &#8226;   <a href="#rlbot">rlbot</a>
+ &#8226;   <a href="#rlbot.flat">rlbot.flat</a>
+ &#8226;   <a href="#rlbot.utils.os_detector">rlbot.utils.os_detector</a>
+ &#8226;   <a href="#tomllib">tomllib</a>
+ &#8226;   <a href="#typing">typing</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#agent.py">agent.py</a>
 
   </div>
 
@@ -13263,7 +13505,9 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#rlbot">rlbot</a>
+    <a href="#agent.py">agent.py</a>
+ &#8226;   <a href="#rlbot">rlbot</a>
+ &#8226;   <a href="#rlbot.config">rlbot.config</a>
  &#8226;   <a href="#rlbot.interface">rlbot.interface</a>
  &#8226;   <a href="#rlbot.managers.bot">rlbot.managers.bot</a>
  &#8226;   <a href="#rlbot.managers.hivemind">rlbot.managers.hivemind</a>
@@ -13296,7 +13540,8 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#rlbot.managers.bot">rlbot.managers.bot</a>
+    <a href="#agent.py">agent.py</a>
+ &#8226;   <a href="#rlbot.managers.bot">rlbot.managers.bot</a>
  &#8226;   <a href="#rlbot.managers.hivemind">rlbot.managers.hivemind</a>
  &#8226;   <a href="#rlbot.managers.match">rlbot.managers.match</a>
  &#8226;   <a href="#rlbot.managers.rendering">rlbot.managers.rendering</a>
@@ -13321,7 +13566,8 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#rlbot.managers.bot">rlbot.managers.bot</a>
+    <a href="#agent.py">agent.py</a>
+ &#8226;   <a href="#rlbot.managers.bot">rlbot.managers.bot</a>
  &#8226;   <a href="#rlbot.managers.hivemind">rlbot.managers.hivemind</a>
  &#8226;   <a href="#rlbot.managers.match">rlbot.managers.match</a>
  &#8226;   <a href="#rlbot.managers.rendering">rlbot.managers.rendering</a>
@@ -13349,7 +13595,8 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#rlbot.managers">rlbot.managers</a>
+    <a href="#agent.py">agent.py</a>
+ &#8226;   <a href="#rlbot.managers">rlbot.managers</a>
 
   </div>
 
@@ -13373,7 +13620,8 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#rlbot.managers">rlbot.managers</a>
+    <a href="#agent.py">agent.py</a>
+ &#8226;   <a href="#rlbot.managers">rlbot.managers</a>
 
   </div>
 
@@ -13425,7 +13673,8 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#rlbot.managers.bot">rlbot.managers.bot</a>
+    <a href="#agent.py">agent.py</a>
+ &#8226;   <a href="#rlbot.managers.bot">rlbot.managers.bot</a>
 
   </div>
 
@@ -13448,7 +13697,8 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#rlbot.managers">rlbot.managers</a>
+    <a href="#agent.py">agent.py</a>
+ &#8226;   <a href="#rlbot.managers">rlbot.managers</a>
 
   </div>
 
@@ -13466,12 +13716,14 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#rlbot.managers.bot">rlbot.managers.bot</a>
+    <a href="#agent.py">agent.py</a>
+ &#8226;   <a href="#rlbot.managers.bot">rlbot.managers.bot</a>
  &#8226;   <a href="#rlbot.managers.hivemind">rlbot.managers.hivemind</a>
  &#8226;   <a href="#rlbot.managers.match">rlbot.managers.match</a>
  &#8226;   <a href="#rlbot.managers.script">rlbot.managers.script</a>
  &#8226;   <a href="#rlbot.utils.gateway">rlbot.utils.gateway</a>
  &#8226;   <a href="#rlbot.utils.logging">rlbot.utils.logging</a>
+ &#8226;   <a href="#rlbot.utils.maps">rlbot.utils.maps</a>
  &#8226;   <a href="#rlbot.utils.os_detector">rlbot.utils.os_detector</a>
 
   </div>
@@ -13496,7 +13748,8 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#rlbot.managers.match">rlbot.managers.match</a>
+    <a href="#agent.py">agent.py</a>
+ &#8226;   <a href="#rlbot.managers.match">rlbot.managers.match</a>
  &#8226;   <a href="#rlbot.utils">rlbot.utils</a>
 
   </div>
@@ -13517,7 +13770,8 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#rlbot.interface">rlbot.interface</a>
+    <a href="#agent.py">agent.py</a>
+ &#8226;   <a href="#rlbot.interface">rlbot.interface</a>
  &#8226;   <a href="#rlbot.managers.bot">rlbot.managers.bot</a>
  &#8226;   <a href="#rlbot.managers.hivemind">rlbot.managers.hivemind</a>
  &#8226;   <a href="#rlbot.managers.match">rlbot.managers.match</a>
@@ -13525,6 +13779,22 @@ imported by:
  &#8226;   <a href="#rlbot.managers.script">rlbot.managers.script</a>
  &#8226;   <a href="#rlbot.utils.gateway">rlbot.utils.gateway</a>
  &#8226;   <a href="#rlbot.utils.os_detector">rlbot.utils.os_detector</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="rlbot.utils.maps"></a>
+  <a target="code" href="///C:/Users/BossDeBoss/AppData/Local/Programs/Python/Python313/Lib/site-packages/rlbot/utils/maps.py" type="text/plain"><tt>rlbot.utils.maps</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#rlbot.utils">rlbot.utils</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#agent.py">agent.py</a>
 
   </div>
 
@@ -13543,7 +13813,9 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#rlbot.managers.match">rlbot.managers.match</a>
+    <a href="#agent.py">agent.py</a>
+ &#8226;   <a href="#rlbot.config">rlbot.config</a>
+ &#8226;   <a href="#rlbot.managers.match">rlbot.managers.match</a>
  &#8226;   <a href="#rlbot.utils.gateway">rlbot.utils.gateway</a>
  &#8226;   <a href="#rlbot.utils.logging">rlbot.utils.logging</a>
 
@@ -13561,7 +13833,8 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#rlbot">rlbot</a>
+    <a href="#agent.py">agent.py</a>
+ &#8226;   <a href="#rlbot">rlbot</a>
 
   </div>
 
@@ -13577,7 +13850,8 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#rlbot.flat">rlbot.flat</a>
+    <a href="#agent.py">agent.py</a>
+ &#8226;   <a href="#rlbot.flat">rlbot.flat</a>
  &#8226;   <a href="#rlbot_flatbuffers.rlbot_flatbuffers">rlbot_flatbuffers.rlbot_flatbuffers</a>
 
   </div>
@@ -13593,7 +13867,8 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#rlbot_flatbuffers">rlbot_flatbuffers</a>
+    <a href="#agent.py">agent.py</a>
+ &#8226;   <a href="#rlbot_flatbuffers">rlbot_flatbuffers</a>
 
   </div>
 
@@ -18026,6 +18301,8 @@ imported by:
  &#8226;   <a href="#base64">base64</a>
  &#8226;   <a href="#ctypes">ctypes</a>
  &#8226;   <a href="#ctypes.util">ctypes.util</a>
+ &#8226;   <a href="#flatbuffers.number_types">flatbuffers.number_types</a>
+ &#8226;   <a href="#flatbuffers.packer">flatbuffers.packer</a>
  &#8226;   <a href="#gettext">gettext</a>
  &#8226;   <a href="#gzip">gzip</a>
  &#8226;   <a href="#multiprocessing.connection">multiprocessing.connection</a>
@@ -18083,6 +18360,7 @@ imports:
 imported by:
     <a href="#_aix_support">_aix_support</a>
  &#8226;   <a href="#_pyrepl.pager">_pyrepl.pager</a>
+ &#8226;   <a href="#agent.py">agent.py</a>
  &#8226;   <a href="#asyncio.base_events">asyncio.base_events</a>
  &#8226;   <a href="#asyncio.base_subprocess">asyncio.base_subprocess</a>
  &#8226;   <a href="#asyncio.events">asyncio.events</a>
@@ -18176,6 +18454,7 @@ imported by:
  &#8226;   <a href="#encodings.utf_16">encodings.utf_16</a>
  &#8226;   <a href="#encodings.utf_32">encodings.utf_32</a>
  &#8226;   <a href="#enum">enum</a>
+ &#8226;   <a href="#flatbuffers.compat">flatbuffers.compat</a>
  &#8226;   <a href="#fractions">fractions</a>
  &#8226;   <a href="#ftplib">ftplib</a>
  &#8226;   <a href="#getopt">getopt</a>
@@ -18706,7 +18985,8 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#setuptools.compat.py310">setuptools.compat.py310</a>
+    <a href="#rlbot.config">rlbot.config</a>
+ &#8226;   <a href="#setuptools.compat.py310">setuptools.compat.py310</a>
  &#8226;   <a href="#tomllib._parser">tomllib._parser</a>
  &#8226;   <a href="#tomllib._re">tomllib._re</a>
  &#8226;   <a href="#tomllib._types">tomllib._types</a>
@@ -18992,7 +19272,6 @@ imported by:
  &#8226;   <a href="#_pyrepl.trace">_pyrepl.trace</a>
  &#8226;   <a href="#_pyrepl.unix_console">_pyrepl.unix_console</a>
  &#8226;   <a href="#_pyrepl.windows_console">_pyrepl.windows_console</a>
- &#8226;   <a href="#agent.py">agent.py</a>
  &#8226;   <a href="#asyncio.timeouts">asyncio.timeouts</a>
  &#8226;   <a href="#charset_normalizer.api">charset_normalizer.api</a>
  &#8226;   <a href="#charset_normalizer.cd">charset_normalizer.cd</a>
@@ -19027,6 +19306,7 @@ imported by:
  &#8226;   <a href="#packaging.utils">packaging.utils</a>
  &#8226;   <a href="#packaging.version">packaging.version</a>
  &#8226;   <a href="#requests.adapters">requests.adapters</a>
+ &#8226;   <a href="#rlbot.config">rlbot.config</a>
  &#8226;   <a href="#setuptools">setuptools</a>
  &#8226;   <a href="#setuptools._distutils._modified">setuptools._distutils._modified</a>
  &#8226;   <a href="#setuptools._distutils.archive_util">setuptools._distutils.archive_util</a>

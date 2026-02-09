@@ -425,6 +425,14 @@ class Agent:
                 except Exception:
                     pass
                 self.mm = None
+            # Close Rocket League
+            if sys.platform == "win32":
+                try:
+                    subprocess.run(["taskkill", "/f", "/im", "RocketLeague.exe"],
+                                   capture_output=True, timeout=5)
+                    log.info("Rocket League closed.")
+                except Exception:
+                    pass
 
     def run(self):
         log.info(f"DominanceBot Agent v{VERSION}")
